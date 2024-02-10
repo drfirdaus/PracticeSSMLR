@@ -1,0 +1,112 @@
+---
+title: "Question 4 Syahid"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: word_document
+---
+
+```{r}
+library(haven)
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(gtsummary)
+library(ggplot2)
+
+```
+
+```{r}
+Data1 <- read_excel('peptic_ulcer.xlsx')
+Data1 <- Data1 %>%
+  mutate(across(where(is.character),as_factor))
+```
+
+```{r}
+summary(Data1)
+```
+
+A dataset named Q4.csv has six (6) variables. (? Dataset <https://github.com/drkamarul/data-for-RMed/blob/main/data/peptic_ulcer.xlsx>) (SYAHID)
+
+i. Outcome: alive or dead (the outcome variable)
+
+ii.Sepsis: yes or no
+
+iii. Creatinine: in mmol/L
+
+iv. Age: in years old
+
+v. Perforation: size of perforation in cm
+
+vi. Hemoglobin: in mg/dL
+
+The **binary logistic regression analysis** was chosen to assess the relationship between the outcome and the rest of the variables.
+
+## (a) Justify the choice of the analysis. (4 marks)
+
+The dependant variable is dichotomous and the independent variables are numerical and categorical variables
+
+State the assumptions for the analysis. (2 marks)
+
+there is linearity of logit with the covariate
+
+the outcome variable is binomial and has bernouli distribution
+
+absence of multicollinearity
+
+fixed errors (measured without error)
+
+independe
+
+independent variable
+
+## (b) Generate a saturated model and name it as Model_Outcome. Present Model_Outcome in a table. (5 marks)
+
+```{r}
+Model_Outcome <- glm (outcome ~ sepsis + creatinine + age + perforation + hemoglobin, family = binomial(link='logit'), data = Data1) 
+
+```
+
+```{r}
+summary(Model_Outcome)
+```
+
+```{r}
+TableMLogR <- tbl_regression(Model_Outcome)
+TableMLogR
+```
+
+## (c)Using Model_Outcome, compose an interaction between creatinine and sepsis. Name it as Model_Outcome_ia. Present Model_Outcome_ia in a table. (5 marks)
+
+```{r}
+Model_Outcome_ia <- glm(formula = outcome ~ sepsis + creatinine + age + perforation + hemoglobin + creatinine:sepsis , family = binomial(link = "logit"), data = Data1)
+```
+
+```{r}
+summary(Model_Outcome_ia)
+```
+
+```{r}
+TableMLogR.ia <- tbl_regression(Model_Outcome_ia)
+TableMLogR.ia
+```
+
+## (d) For Model_Outcome_ia, write:
+
+The logistic model. (2 marks)
+
+E(Y) = P = (Exp\^(B0 + B1X1 + B2X2 + B3X3 + B4X4 + B5X5 + B6X6) / (1 + Exp \^ (B0 + B1X1 + B2X2 + B3X3 + B4X4 + B5X5 + B6X6))
+
+The logit equation. (2 marks)
+
+Logit (Y) = -12.1234 + 8.6209 (sepsisyes) + 0.0253(creatinine) + 0.0054 (age) + 0.8777 (perforation) + 0.25045 (hemoglobin) - 0.0228 (sepsisyes\*creatinine)
+
+## (e) Using Model_Outcome_ia, generate the predicted values for Observation 1. Show your manual calculation. (4 marks)
+
+```{r}
+augment(Model_Outcome_ia)
+```
+
+```{r}
+-12.1234 + (8.6209*0) + (0.0253*135) + (0.0054*42) + (0.8777*0.5) + (0.25045*18) - (0.0228*0*135)
+```
