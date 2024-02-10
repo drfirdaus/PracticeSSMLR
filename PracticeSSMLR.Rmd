@@ -2,7 +2,9 @@
 title: "PracticeSSMLR"
 author: "Ahmad Firdaus Mohamed"
 date: "2024-02-10"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 # Modelling Linear Regression
@@ -20,39 +22,119 @@ d) Predict the mean hdl level in a population with ldl = 3.5, mogtt2h = 7.0, gen
 
 # Prepare Environment
 
-```{r}
+```{r, echo=FALSE}
 library(haven)
 library(readxl)
 library(gtsummary)
 library(ggplot2)
 library(tidyverse)
 library(dplyr)
+library(broom)
 
 ```
 
 ## Read data
 
-```{r}
+```{r, echo=FALSE}
 Data1 <- read.csv('metabolic_syndrome.csv')
 ```
 
-```{r}
-DataXCL <-read_excel('peptic_ulcer.xlsx')
-```
-
-```{r}
-glimpse(Data1)
-```
-
-```{r}
-summary(Data1)
-```
-
-```{r}
+```{r, echo=FALSE}
 Data1 <- Data1 %>%
   mutate(across(where(is.character),as_factor)) 
 ```
 
+Using the same dataset (data_my.csv), analyze the relationship between variable ‘hdl’ and these covariates, ‘ldl’,’mogtt2h’,’gender’. Name the model as Model A.\
+a) Write the regression model and regression estimate. (10 marks)
+
 ```{r}
-summary(Data1)
+Model.A <- lm(hdl~ldl + mogtt2h + gender, data = Data1)
+summary(Model.A)
+```
+
+```{r}
+tidy(Model.A, conf.int = T)
+```
+
+Regression Model Y= B0 + B1X1 + B2X2 + B3X + E
+
+Regression Estimate
+
+hdl = 1.1171 + 0.0966(ldl) - 0.0058(mogtt2h)- 0.18544(gendermale)
+
+b) Interpret the variances between regression model and regression estimates (10 marks)
+
+1) with every increase of 1mmol ldl, hdl changes by 0.0966 (95% CI = 0.0865. 0.1066) , when mogtt2h and gender are adjusted
+
+2) with every increase of 1 mmol moggt2h, hdl changes by - 0.0058 (95% CI = -0.0088, -0.0028) when ldl and gender are adjusted
+
+3) being male, the hdl changes by -0.1854 (95% CI = -0.2083, -0.1625) compared to female when ldl and mogtt2h are adjusted
+
+c) Add on interaction between ‘mogtt2h’ and ‘gender’ to the model and name the model  as Model B.
+
+ Compare model A and model B using appropriate test and interpret the findings. (10 marks)
+
+```{r}
+Model.B <- lm(hdl~ldl + mogtt2h + gender + mogtt2h:gender, data = Data1)
+summary(Model.B)
+```
+
+```{r}
+anova (Model.A, Model.B)
+```
+
+There is no significant difference between Model.A and Model.B when the significant value is set at 0.05
+
+d) Predict the mean hdl level in a population with ldl = 3.5, mogtt2h = 7.0, gender = male according the Model A and Model B. (10 marks)
+
+Expand Grind Method
+
+```{r}
+new_data <- expand.grid (ldl=3.5, mogtt2h=7.0, gender = "male")
+```
+
+For model A
+
+```{r}
+Predict.Model.A <- predict(Model.A, newdata = new_data)
+summary(Predict.Model.A)
+```
+
+using equation
+
+hdl = 1.1171 + 0.0966(ldl) - 0.0058(mogtt2h)- 0.18544(gendermale)
+
+```{r}
+1.1171 + (0.0966*3.5) - (0.0058*7) - 0.18544
+```
+
+For Model B
+
+Expand Grid Method
+
+```{r}
+Predict.Model.B <- predict(Model.B, newdata = new_data)
+Predict.Model.B
+```
+
+using equation
+
+```{r}
+summary(Model.B)
+```
+
+ldl = 1.128 + 0.0968 (ldl) - 0.0073(mogtt2h) - 0.2163 (gendermale) + 0.0043 (mogtt2h:gendermale)
+
+```{r}
+1.128 + (0.0968*3.5) - (0.0073*7) - 0.2163 + (0.0043*7)
+```
+
+```{r}
+TableModelA <- tbl_regression(Model.A)
+TableModelA
+```
+
+```{r}
+TableModelB <- tbl_regression(Model.B)
+TableModelB
 ```
