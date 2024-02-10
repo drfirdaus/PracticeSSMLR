@@ -1,0 +1,158 @@
+---
+title: "Question 2 (Amalina)"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: word_document
+---
+
+```{r}
+library(haven)
+library(readxl)
+library(tidyverse)
+library(broom)
+library(gtsummary)
+library(ggplot2)
+library(lmtest)
+library(car)
+```
+
+```{r}
+Data1<- read.csv("metabolic_syndrome.csv")
+```
+
+```{r}
+Data1 <- Data1 %>%
+  mutate(across(where(is.character),as_factor)) %>%
+  mutate(bmi=weight/(height^2))
+```
+
+```{r}
+summary(Data1)
+```
+
+2\. Multiple linear regression ; Variables: BMI, fbs as covariates.  Hba1c as outcome  (AMALINA) (?dataset [https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.dta)](https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.dta))
+
+## a. Write regression model and regression equation (10m)
+
+```{r}
+Model_A <- lm (hba1c ~ bmi + fbs, data = Data1)
+summary(Model_A)
+```
+
+```{r}
+tidy(Model_A, conf.int=T)
+```
+
+Y = B0 + B1X1 + B2X2 + Error
+
+hba1c = 3.0571 + 0.0206(bmi) + 0.3896 (fbs) + Error
+
+Interpretation
+
+1)  With every increase of 1 unit bmi, the hba1c changes by 0.0206 (95% CI = 0.0144, 0.026808) when fbs is adjusted
+
+2)  With every increase of 1 unit fbs, the hba1c changes by 0.3896 ( 95% CI = 0.3769, 0.4024) when bmi is adjusted
+
+## b. Add interaction. Present in table (10m)
+
+```{r}
+Model_B <- lm (hba1c ~ bmi + fbs + bmi:fbs , data = Data1)
+summary(Model_B)
+```
+
+```{r}
+tidy(Model_B)
+```
+
+```{r}
+Table.Model_B <- tbl_regression(Model_B)
+Table.Model_B
+```
+
+## c. Write equation with interaction. (10m)
+
+```{r}
+tidy(Model_B, conf.int = T)
+```
+
+Y = B0 + B1X1 + B2X2 + B3X3 Error
+
+hba1c = 3.6376 - 0.00140(bmi) + 0.2877 (fbs) + 0.0038(fbs\*bmi) + Error
+
+1)  with increase of 1 unit bmi, the hba1c change by -0.0014 (95% CI = -0.01659, 0.01377) when fbs and fbs\*bmi are adjusted
+
+2)  with increase of 1 unit fbs, the hba1c changes by 0.2877 (95% CI = 0.2222, 0.3531) when bmi and fbs\* bmi are adjusted
+
+[***3) Interaction Interpretation susah, buat next time la***]{.underline}
+
+## d. Assumptions for fitness analysis for this model. (10m)
+
+\*\*comment on adjusted R-squared
+
+### Linearity
+
+```{r}
+plot(Model_B, which=2)
+```
+
+Q-Q plot shows the linearity of residual assumption might be violated as the head and is curved
+
+To compare covariate linearity with residuals
+
+```{r}
+
+```
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x = fbs, y = .resid))+
+  geom_point() +
+  geom_smooth()
+```
+
+### Independent
+
+This is based on study design
+
+### Normality
+
+```{r}
+shapiro.test(Model_B$residuals)
+```
+
+p-value \<0.05, normality of residuals assumption violated
+
+```{r}
+res.mod <- residuals(Model_B)
+hist(res.mod)
+```
+
+however, histogram of residuals seemed normality distributed by eye-balling
+
+```{r}
+plot(Model_B, which=2)
+```
+
+but the Q-Q plot showed there is no normality as the plot is curved at head and tail
+
+### Equal Variance
+
+```{r}
+ncvTest(Model_B)
+```
+
+p-value \<0.05, homoscedacity assumption is violated
+
+```{r}
+bptest(Model_B)
+```
+
+p-value ,0.005, homoscedacity assumption is violated
+
+```{r}
+plot(Model_B, which = 1 )
+```
+
+```{r}
+plot(Model_B)
+```
