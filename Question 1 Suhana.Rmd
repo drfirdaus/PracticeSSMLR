@@ -71,7 +71,7 @@ Table.mod.metab
 
 Logit (Y) = B0 + B1X1 + B2X2 + B3X3 + B4X4 + Error
 
-Logit (dmdx) = -12.0032 + 0.051-3 (age) + 0.1209 (gendermale) + 1.1091 (hba1c + 0.0021(msbpr)
+Logit (dmdx) = -12.0032 + 0.0513 (age) + 0.1209 (gendermale) + 1.1091 (hba1c + 0.0021(msbpr)
 
 1) With every increase 1 year in age, the log odd for dmdx changes by 0.051 (95% CI = 0.0397, 0.0625), when adjusted for gender, hba1c and msbpr
 
@@ -104,3 +104,70 @@ anova(mod.metab, mod.metab.int, test = 'Chisq')
 ```
 
 When the significant level set at 0.05, there is no difference between the 2 models
+
+## d) Predict the logit and probability for having dmdx = yes in a population with age = 41, gender = female, hba1c = 5.2 and msbp = 70 based on ‘mod.metab’ and ‘mod.metab.int’. (20 marks)
+
+```{r}
+new_data <- expand.grid(age=41, gender="female", hba1c = 5.2, msbpr=70)
+new_data
+```
+
+For mod.metab
+
+Log Odds
+
+```{r}
+predict.mod.metab.logOR <- predict(mod.metab, newdata = new_data, type = 'link')
+predict.mod.metab.logOR
+```
+
+Manual calculation
+
+```{r}
+-12.0032 + (0.0513* 41) + (0.1209*0) + (1.1091*5.2)+ (0.0021*70)
+```
+
+```{r}
+predict.mod.metab.prob <- predict(mod.metab, newdata = new_data, type = 'response')
+predict.mod.metab.prob
+```
+
+Manual calculation probability
+
+probability = odds / (odds+1)
+
+```{r}
+(exp(-3.993811))/ (exp(-3.993811)+1)
+```
+
+For mod.metab.int
+
+Log Odds
+
+```{r}
+predict.mod.metab.int.logOR <- predict(mod.metab.int, newdata = new_data, type = 'link')
+predict.mod.metab.int.logOR
+```
+
+Manual Calculation
+
+```{r}
+summary(mod.metab.int)
+```
+
+```{r}
+-11.8689 + (0.048543*41) + 0 + (1.1094 * 5.2) + (0.002163*70) + (0.006370*41*0)
+```
+
+Probability
+
+```{r}
+predict.mod.metab.int.prob <- predict(mod.metab.int, newdata = new_data, type = 'response')
+predict.mod.metab.int.prob
+```
+
+Manual
+
+```{r}
+(exp(-3.9583))/(exp(-3.9583)+1)
+```

@@ -1,0 +1,168 @@
+---
+title: "Question 3 (Syahid)"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: word_document
+---
+
+```{r}
+library(haven)
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(gtsummary)
+library(lmtest)
+library(rsq)
+library(psych)
+```
+
+```{r}
+Data1<- read.csv("metabolic_syndrome.csv")
+```
+
+```{r}
+Data1<- na.omit(Data1)
+```
+
+```{r}
+summary(Data1)
+
+```
+
+1\. Dataset named as Q3.csv has six (6) variables. (SYAHID) (? Dataset [https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.csv)](https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.csv))
+
+i. HBA1C: in percentage (the outcome variable)
+
+ii.FBS: Fasting blood sugar in mmol/L
+
+iii. AGE: Age of participants
+
+iv. DMDX: History of diabetes (0 = No, 1 = Yes)
+
+v. MOGTT2H: 2-hours post prandial sugar in mmol/L
+
+vi. TOTCHOL: Total cholesterol in mmol/L
+
+## (a) The analyst has proposed two (2) candidate models:
+
+Model_A: covariates are DMDX, FBS, and MOGTT2H
+
+```{r}
+Model_A <- lm (hba1c~ dmdx + fbs + mogtt2h, data = Data1)
+```
+
+```{r}
+summary(Model_A)
+```
+
+Model_B: covariates are AGE and TOTCHOL
+
+```{r}
+Model_B <- lm (hba1c~ age + totchol, data = Data1)
+```
+
+```{r}
+summary(Model_B)
+```
+
+Compare Model_A and Model_B. Show your results. (4 marks)
+
+```{r}
+anova(Model_A, Model_B)
+```
+
+When significant level is set at 0.05, there is significant difference between the 2 models.
+
+Model A adj R-sq is 0.4498
+
+Model B adj R-sq is 0.0407
+
+Establish the model of your choice. Give reasons. (4 marks)
+
+The selected model is Model A because of higher R-sq and there is significant difference between the 2 models
+
+## (b) Using your model of choice from (a), perform a model assessment. Show the results and comment on the findings. (8 marks)
+
+```{r}
+plot(Model_A)
+```
+
+### Line
+
+```{r}
+plot(Model_A, which = 1)
+```
+
+The red line through the scatter plot straight, horizontal and not curved indicating linearity assumption is satisfied. The homoscedasticity assumption is met as the residuals are equally spread around the y = 0 line
+
+```{r}
+summary(Model_A)
+```
+
+Furthermore for each CV
+
+```{r}
+augment(Model_A)%>%
+  ggplot(aes(x=fbs, y=.resid))+
+  geom_point()+
+  geom_smooth()
+```
+
+```{r}
+augment(Model_A)%>%
+  ggplot(aes(x=mogtt2h, y=.resid))+
+  geom_point()+
+  geom_smooth()
+```
+
+Residuals shows individual linearity against mogtt2h and fbs
+
+### Independence
+
+Based on study design
+
+### Normality
+
+```{r}
+plot(Model_A, which = 2)
+```
+
+In Q-Q plot, there is curvature at head and tail indicating normality assumption is violated
+
+```{r}
+res.mod <- residuals(Model_A)
+hist(res.mod)
+```
+
+However, based on histogram the residuals appear normally distributed
+
+### Equal Variance
+
+```{r}
+plot(Model_A, which = 1)
+```
+
+horizontal line with randomly scattered data points around it observed, suggesting that the homoscedasticity assumption is satisfied.
+
+## (c) Using Model_A, build a model with an interaction term between DMDX and FBS. Present the results in a table. (6 marks)
+
+```{r}
+Model.ia <- lm(hba1c ~ dmdx + fbs + mogtt2h + dmdx:fbs, data = Data1)
+summary(Model.ia)
+```
+
+```{r}
+Tblmod <- tbl_regression(Model.ia)
+Tblmod
+```
+
+## (d) Write the regression equation. (4 marks)
+
+```{r}
+summary(Model.ia)
+```
+
+Y= B0 + B1X1 + B2X2 + B3X3 + B4X4
+
+hba1c = 3.9007 - 0.688552(dmdxyes) + 0.147790 (fbs) + 0.1133(mogtt2h) + 0.1562 (dmdxyes\*fbs)
