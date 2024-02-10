@@ -13,6 +13,13 @@ library(dplyr)
 library(broom)
 library(gtsummary)
 library(ggplot2)
+library(lattice)
+library(caret)
+library(pROC)
+library(ResourceSelection)
+library(performance)
+library(LogisticDx)
+library(largesamplehl)
 
 ```
 
@@ -109,4 +116,59 @@ augment(Model_Outcome_ia)
 
 ```{r}
 -12.1234 + (8.6209*0) + (0.0253*135) + (0.0054*42) + (0.8777*0.5) + (0.25045*18) - (0.0228*0*135)
+```
+
+## Model Assessment
+
+### Classification Table
+
+```{r}
+fit.m <- augment(Model_Outcome_ia, type.predict = 'response') %>%
+  mutate(pred.class=factor(ifelse(.fitted>0.5,'dead','alive')))
+```
+
+```{r}
+confusionMatrix(fit.m$outcome,fit.m$pred.class)
+```
+
+The accuracy is 87.6%
+
+Sensitivity is 93.5
+
+Specificity is 76.7
+
+```{r}
+plot(Model_Outcome_ia)
+```
+
+### AUROC
+
+```{r}
+roc <- roc(Data1$outcome,Model_Outcome_ia$fitted.values)
+```
+
+```{r}
+auc(roc)
+```
+
+```{r}
+plot(roc)
+```
+
+### Hosmer-Lemeshow
+
+```{r}
+fit.hl <- gof(Model_Outcome_ia, g=8)
+```
+
+### 
+
+```{r}
+fit.hl$gof
+```
+
+p-value for HL and Oseo Rojek are all \> 0.05, hence the model is fit
+
+```{r}
+hltest(Model_Outcome_ia, G=10)
 ```
