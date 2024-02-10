@@ -1,0 +1,106 @@
+---
+title: "Question 1 (Suhana)"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: word_document
+---
+
+```{r}
+library(haven)
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(gtsummary)
+library(ggplot2)
+library(lattice)
+library(caret)
+library(pROC)
+library(mfp)
+```
+
+```{r}
+Data1 <- read_dta("diabetes.dta")
+```
+
+```{r}
+Data1 <- Data1 %>%
+  mutate(across(where(is.labelled), as_factor))
+```
+
+```{r}
+summary(Data1)
+```
+
+1\. A dataset(data_my.csv) contains these variables:  (SUHANA) (?data diabetes.dta)
+
+-id : unique identification number
+
+-mswho : status of metabolic syndrome WHO (yes/no) (change outcome to dmdx)
+
+-age : age in years
+
+-gender : gender of each respondent (male/female)
+
+-hba1c : hba1c in percentage (%)
+
+-msbp : mean BP in mmHg
+
+-hdl : high density lipoprotein (mmol/l)
+
+-ldl : low density lipoprotein (mmol/l)
+
+-mogtt2h : 2 hours post prandial glucose (mmol/l)
+
+## a) Analyze the relationship between variable ‘dmdx’ and these covariates, ‘age’,’gender’,’hba1c’ and   ‘msbp’. Name the model as ‘mod.metab’. Write the estimated regression parameters in a table based on ‘mod.metab’. 
+
+Interpret the parameters. (20 marks)
+
+```{r}
+mod.metab <- glm(dmdx~ age + gender + hba1c + msbpr, family = binomial(link = 'logit'), data = Data1)
+summary(mod.metab)
+```
+
+```{r}
+tidy(mod.metab, conf.int = T)
+```
+
+```{r}
+Table.mod.metab <- tbl_regression(mod.metab)
+Table.mod.metab
+```
+
+Logit (Y) = B0 + B1X1 + B2X2 + B3X3 + B4X4 + Error
+
+Logit (dmdx) = -12.0032 + 0.051-3 (age) + 0.1209 (gendermale) + 1.1091 (hba1c + 0.0021(msbpr)
+
+1) With every increase 1 year in age, the log odd for dmdx changes by 0.051 (95% CI = 0.0397, 0.0625), when adjusted for gender, hba1c and msbpr
+
+2) Being male changes the log odd of dmdx by 0.1209 (95% CI = -0.1483, 0.3873), when adjusted for age, hba1c and msbpr
+
+3) With every increase of 1mmol hba1c , the log odd for dmdx changes by 1.1091 (95% CI = 1.0133, 1.2101 ), when adjusted for gender, age and msbpr
+
+4) With every increase of 1mmhg msbpr , the log odd for dmdx changes by 0.0021 (95% CI = -0.0040, 0.0082 ), when adjusted for gender, age and hba1c
+
+## b) Add an interaction term between variable ‘age’ and ‘gender’ to the model ‘mod.metab’.
+
+Run the analysis and name the model as ‘mod.metab.int’.
+
+Write the estimated regression parameters in a table based on ‘mod.metab.int’.    (10 marks)
+
+```{r}
+mod.metab.int <- glm(dmdx~ age + gender + hba1c + msbpr + age: gender, family = binomial(link = 'logit'), data = Data1)
+summary(mod.metab.int)
+```
+
+```{r}
+Table.mod.metab.int <- tbl_regression(mod.metab.int)
+Table.mod.metab.int
+```
+
+## c) Compare model ‘mod.metab.int’ and ‘mod.metab’ using an appropriate test and interpret the result. (10 marks)
+
+```{r}
+anova(mod.metab, mod.metab.int, test = 'Chisq')
+```
+
+When the significant level set at 0.05, there is no difference between the 2 models

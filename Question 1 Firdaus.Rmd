@@ -1,0 +1,152 @@
+---
+title: "Question 1 (Firdaus)"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: word_document
+---
+
+```{r}
+library(haven)
+library(here)
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(gtsummary)
+library(corrplot)
+
+```
+
+```{r}
+Data1<-read_csv("metabolic_syndrome.csv")
+```
+
+```{r}
+Data1<-Data1 %>%
+  mutate(across(where(is.character),as_factor))
+```
+
+```{r}
+summary(Data1)
+```
+
+1\. Data were collected to study factors that were related with HbA1c. The dataset is named as “metab_syndrome” and in .xlsx formats. (FIRDAUS) (? Dataset [https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.dta)](https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.dta))
+
+A model was proposed to examine the relationship between HBA1C with these covariates: AGE, DMDX, MSBPR, FBS and HDL.
+
+## a. Write the regression model and equation for MODEL_A. (15 marks)
+
+```{r}
+Model_A <- lm (hba1c ~ age + dmdx + msbpr + fbs + hdl, data = Data1)
+```
+
+```{r}
+summary(Model_A)
+```
+
+Regression model
+
+Y= B0 + B1X1 + B2X2 + B3X3 + B4X4 + B5X5
+
+hba1c = 3.7738 + 0.0033(age) + 1.3374 (dmdxyes) - 0.0005 (msbpr) + 0.0043 (hdl)
+
+## b. Add variable MDBPR to MODEL_A and name the new model as MODEL_B. Describe the effect of this addition to the model. (5 marks)
+
+```{r}
+Model_B <- lm (hba1c ~ age + dmdx + msbpr + fbs + hdl + mdbpr, data = Data1) 
+summary(Model_B)
+```
+
+The effect of adding mdbr, the adjusted R-Sq changes from 0.5455 to 0.5478
+
+## c. Perform comparison between MODEL_A and MODEL_B. Give comment. (5 marks)
+
+```{r}
+anova(Model_A, Model_B)
+```
+
+When the significant level is set at 0.005, there is significant difference between the 2 models
+
+## d. Perform model assessment for MODEL_B. Save the relevant plots in the thumb-drive and write the names of the plots in the answer sheet. (10 marks).
+
+Linearity for each numerical Covariate
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x=age, y=.resid)) +
+  geom_point()+
+  geom_smooth()
+```
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x=msbpr, y=.resid)) +
+  geom_point()+
+  geom_smooth()
+```
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x=fbs, y=.resid)) +
+  geom_point()+
+  geom_smooth()
+```
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x=hdl, y=.resid)) +
+  geom_point()+
+  geom_smooth()
+```
+
+```{r}
+augment(Model_B) %>%
+  ggplot(aes(x=mdbpr, y=.resid)) +
+  geom_point()+
+  geom_smooth()
+```
+
+Independent
+
+Based from study design
+
+Normality of residual
+
+```{r}
+plot(Model_B)
+```
+
+## e. Predict the average value of HBA1C for a population with:
+
+AGE = 48 years
+
+DMDX = has history of diabetes (1)
+
+MSBPR = 133 mmHg
+
+MDBPR = 79 mmHg
+
+FBS = 5.6 mmol/l
+
+HDL = 1.3 mmol/l
+
+Show your calculation. (5 marks)
+
+```{r}
+new_data <- expand.grid(age=48, dmdx = "yes", msbpr = 133, fbs = 5.6, hdl = 1.3, mdbpr =79)
+new_data
+```
+
+```{r}
+predict.Model_B <- predict(Model_B, newdata = new_data)
+predict.Model_B
+```
+
+```{r}
+summary(Model_B)
+```
+
+hba1c = 3.4945 + 0.0043 (age) + 1.3326(dmdxyes) - 0.0040 (msbpr) + 0.3146 (fbs) + 0.0164 (hdl) + 0.0087 (mdbpr)
+
+```{r}
+3.4945 + (0.0043*48) + 1.3326 - (0.0040*133) + (0.3146*5.6) + (0.0164*1.3) + (0.0087*79)
+```
