@@ -1,0 +1,58 @@
+---
+title: "PracticeSSMLR"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-10"
+output: html_document
+---
+
+# Modelling Linear Regression
+
+Using the same dataset (data_my.csv), analyze the relationship between variable ‘hdl’ and these covariates, ‘ldl’,’mogtt2h’,’gender’. Name the model as Model A.\
+a) Write the regression model and regression estimate. (10 marks)
+
+b) Interpret the variances between regression model and regression estimates (10 marks)
+
+c) Add on interaction between ‘mogtt2h’ and ‘gender’ to the model and name the model  as Model B.
+
+ Compare model A and model B using appropriate test and interpret the findings. (10 marks)
+
+d) Predict the mean hdl level in a population with ldl = 3.5, mogtt2h = 7.0, gender = male according the Model A and Model B. (10 marks)
+
+# Prepare Environment
+
+```{r}
+library(haven)
+library(readxl)
+library(gtsummary)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+```
+
+## Read data
+
+```{r}
+Data1 <- read.csv('metabolic_syndrome.csv')
+```
+
+```{r}
+DataXCL <-read_excel('peptic_ulcer.xlsx')
+```
+
+```{r}
+glimpse(Data1)
+```
+
+```{r}
+summary(Data1)
+```
+
+```{r}
+Data1 <- Data1 %>%
+  mutate(across(where(is.character),as_factor)) 
+```
+
+```{r}
+summary(Data1)
+```
