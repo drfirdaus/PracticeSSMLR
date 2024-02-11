@@ -18,7 +18,7 @@ library(caret)
 library(pROC)
 library(ResourceSelection)
 library(performance)
-library(LogisticDx)
+#library(LogisticDx)
 library(largesamplehl)
 
 ```
@@ -158,13 +158,13 @@ plot(roc)
 ### Hosmer-Lemeshow
 
 ```{r}
-fit.hl <- gof(Model_Outcome_ia, g=8)
+#fit.hl <- gof(Model_Outcome_ia, g=8)
 ```
 
 ### 
 
 ```{r}
-fit.hl$gof
+#fit.hl$gof
 ```
 
 p-value for HL and Oseo Rojek are all \> 0.05, hence the model is fit

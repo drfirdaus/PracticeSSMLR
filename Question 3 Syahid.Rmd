@@ -32,7 +32,7 @@ summary(Data1)
 
 1\. Dataset named as Q3.csv has six (6) variables. (SYAHID) (? Dataset [https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.csv)](https://github.com/drkamarul/multivar_data_analysis/blob/main/data/metabolic_syndrome.csv))
 
-i. HBA1C: in percentage (the outcome variable)
+i.  HBA1C: in percentage (the outcome variable)
 
 ii.FBS: Fasting blood sugar in mmol/L
 
@@ -40,7 +40,7 @@ iii. AGE: Age of participants
 
 iv. DMDX: History of diabetes (0 = No, 1 = Yes)
 
-v. MOGTT2H: 2-hours post prandial sugar in mmol/L
+v.  MOGTT2H: 2-hours post prandial sugar in mmol/L
 
 vi. TOTCHOL: Total cholesterol in mmol/L
 

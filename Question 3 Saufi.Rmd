@@ -1,0 +1,158 @@
+---
+title: "Question 3 Saufi"
+author: "Ahmad Firdaus Mohamed"
+date: "2024-02-11"
+output: word_document
+---
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+library(haven)
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(broom)
+library(gtsummary)
+library(lubridate)
+library(ggplot2)
+library(survival)
+library(survminer)
+```
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+Data1 <- read_dta("stroke_outcome.dta")
+```
+
+```{r}
+summary(Data1)
+```
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+Data1 <- Data1 %>%
+  mutate(across(where(is.labelled),as_factor)) %>%
+  mutate(dur=Data1$doa%--%Data1$dod)%>%
+  mutate(dur=as.duration(dur)) %>%
+  mutate(dur_days=dur/ddays(1))
+```
+
+3\. The dataset “stroke_outcome.dta” comes from a short prospective survival study. The variable outcome is labelled as dead (1) or alive (0) and the variable days is the duration from the start of follow-up untul the last follow-up. (SAUFI) (? Dataset [https://github.com/drkamarul/multivar_data_analysis/blob/main/data/stroke.dta)](https://github.com/drkamarul/multivar_data_analysis/blob/main/data/stroke.dta))
+
+## a. Present and interpret the result for
+
+\- Overall Kaplan-Meier analysis
+
+```{r}
+KM <-survfit(Surv(time = dur_days, event = event=='dead')~1, type="kaplan-meier", data = Data1)
+summary(KM)
+```
+
+manually calculate for 10th observation
+
+```{r}
+(1-(2/44))*0.689
+```
+
+```{r}
+ggsurvplot(KM, surv.median.line = "hv", pval = TRUE, conf.int = TRUE,risk.table = TRUE)
+```
+
+```{r}
+quantile(KM, probs = c(0.25,0.5,0.75))
+```
+
+The median time for survival overall is 22 days (95% CI : 50, -)
+
+```{r}
+summary(KM,times=c(0,22))
+```
+
+At time 0, 4 events occured with the survival probability is 0.985 (95% CI : 0.970, 1.0)
+
+At time 22, which is the median survival time, 58 event occurred. The survival probability is 0.495 (95% 0.386, 0.635).
+
+\- Kaplan-Meier analysis on variable dm2
+
+```{r}
+KM.dm2 <-survfit(Surv(time = dur_days, event = event=='dead')~dm2, type="kaplan-meier", data = Data1)
+summary(KM.dm2)
+```
+
+```{r}
+ggsurvplot(KM.dm2, pval = TRUE, conf.int = TRUE,
+          risk.table = TRUE, # Add risk table
+          risk.table.col = "strata", # Change risk table color by groups
+          linetype = "strata", # Change line type by groups
+          surv.median.line = "hv", # Specify median survival
+          ggtheme = theme_bw(), # Change ggplot2 theme
+          palette = c("#E7B800", "#2E9FDF"))
+```
+
+```{r}
+quantile(KM.dm2, probs = c(0.25,0.5,0.75))
+```
+
+```{r}
+summary(KM.dm2,times=c(0,12,29))
+```
+
+Comment on the time, number of event and probability of the event for both analyses. (10 marks)
+
+For no DM group, at time zero, 1 event occured with the survival probabilities of 99.4% (95% cI 98.1%, 100%). At time 29, which is the median survival time, 23 events had occurred, with the survival probabilities of 48.7% (95% CI 28.2, 84.2%)
+
+For Dm group, at time zero, 3 event occured with the survival probabilities of 97.4% (95% cI 93.7%, 100%). At time 12, which is the median survival time, 34 events had occurred, with the survival probabilities of 40.2% (95% CI 8.2%, 27.0%)
+
+The median survival is approximately 29 days for no DM group and 12 days for dm group, suggesting a good survival for no DM group compared to DM group.
+
+## b. The analyst proposed to model the log hazard using the Cox proportional hazard (PH) model.
+
+Comment on his proposal. (5 marks)
+
+It is reasonable for the analyst to proceed with COX proportionate hazard because of the advantages over Kaplan-meier which include:
+
+\
+1) it's multivariable analysis
+
+2) able to analyse both numerical and categorical independent variables
+
+3) it's semi-parametric analysis which is better than non-parametric KM
+
+4) KM unable to calculate log hazard, but COX PH is able to
+
+5) COX PH also able to provide instantaneous risk.
+
+6) COX PH able to assess confounder, and interaction in the model
+
+## c. Estimate the Cox PH model with covariate: sex, gcs, dm2, sbp, dbp. Present the results in a table. Interpret the result for sbp and dm2. (10 marks)
+
+```{r}
+Cox1 <- coxph(Surv(time = dur_days, event= event == 'dead')~ sex + gcs + dm2 + sbp + dbp, data = Data1)
+summary(Cox1)
+```
+
+```{r}
+tidy(Cox1, conf.int = T)
+```
+
+```{r}
+tblCox1 <- tbl_regression(Cox1)
+tblCox1
+```
+
+1) With every increase of 1 mmhg sbp, the log hazard changes by 0.0001297 (95% CI -0.01109, 0.01369), when adjusted for sex, gcs, dm and dbp.
+
+2) Being diabetic, changes the log hazard by 0.9089 (95% Ci : 0.3742, 1.4436) when adjusted for sbp, sex, gcs and dbp.
+
+## d. Test the assumption for proportional hazard. Save the plot in the thumb-drive and write the name of the plot in the answer sheet. (5 marks)
+
+```{r}
+phm <- cox.zph(Cox1, transform = 'km', global= T)
+plot(phm)
+```
+
+### Additional assumption test
+
+```{r}
+cox.zph (Cox1, transform = 'rank')
+
+```
+
+Except the gcs, all other individual covariate and global constant regression coefficient are more than 0.05. Hence when the significance level is set at 0.05, the proportional hazard is assumed
