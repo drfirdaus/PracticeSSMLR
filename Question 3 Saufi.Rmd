@@ -156,3 +156,23 @@ cox.zph (Cox1, transform = 'rank')
 ```
 
 Except the gcs, all other individual covariate and global constant regression coefficient are more than 0.05. Hence when the significance level is set at 0.05, the proportional hazard is assumed
+
+### Additional Prediction
+
+```{r}
+summary(Cox1)
+```
+
+Regression equation
+
+Log Hazard = 0.1869 (sexfemale) - 0.2155(gcs) + 0.9089(dm2yes) + 0.0012(sbp) - 0.0019 (dbp)
+
+Prediction for female, gcs 10, dmyes , sbp 120, dbp 90
+
+```{r}
+predict(Cox1,list(sex="female",gcs= 10,dm2="yes", sbp=120, dbp=90))
+```
+
+```{r}
+0.1869 - (0.2155*10) + (0.9089) + (0.0012*120) - (0.0019*90)
+```

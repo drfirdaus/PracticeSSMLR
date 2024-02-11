@@ -35,7 +35,7 @@ summary(Data1)
 
 A dataset named Q4.csv has six (6) variables. (? Dataset <https://github.com/drkamarul/data-for-RMed/blob/main/data/peptic_ulcer.xlsx>) (SYAHID)
 
-i. Outcome: alive or dead (the outcome variable)
+i.  Outcome: alive or dead (the outcome variable)
 
 ii.Sepsis: yes or no
 
@@ -43,7 +43,7 @@ iii. Creatinine: in mmol/L
 
 iv. Age: in years old
 
-v. Perforation: size of perforation in cm
+v.  Perforation: size of perforation in cm
 
 vi. Hemoglobin: in mg/dL
 
